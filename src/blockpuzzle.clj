@@ -4,7 +4,7 @@
   (set (filter #(not (= 0 %)) (flatten state)))
 )
 
-(defn cut-in-direction-of-move [direction state]
+(defn directionise [direction state]
   (let [switched (if (or (= :up direction) (= :down direction))
                    (apply map list state)
                    state)
@@ -14,8 +14,33 @@
     directionised)
 )
 
+(defn move-in-list [piece-identifier segment]
+  (let [[before-piece remainder] (split-with #(not (= piece-identifier %)) segment)]
+    (cond
+      (empty? remainder) segment
+      (not (= 0 (last before-piece))) nil
+      true (let [before-space (butlast before-piece)
+                 [piece after-piece] (split-with #(= piece-identifier %) remainder)]
+             (concat before-space piece [0] after-piece))
+    ))
+)
+
+(defn undirectionise [direction state]
+  (let [reordered (if (or (= :down direction) (= :right direction))
+                    (map reverse state)
+                    state)
+        reoriented (if (or (= :down direction) (= :up direction))
+                     (apply map list reordered)
+                     reordered)]
+    reoriented)
+)
+
 (defn move [piece direction state]
-  []
+  (let [directionised-state (directionise direction state)
+        moved-state (map #(move-in-list piece %) directionised-state)]
+    (if (contains? nil moved-state)
+      []
+      (undirectionise direction moved-state)))
 )
 
 (defn find-possible-children [state]
