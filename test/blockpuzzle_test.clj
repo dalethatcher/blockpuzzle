@@ -62,27 +62,27 @@
 ))
 
 (deftest move-test
-  (is (= [[0 1 0]
-          [0 0 0]
-          [0 0 0]]
+  (is (= [[[0 1 0]
+           [0 0 0]
+           [0 0 0]]]
          (move 1 :up [[0 0 0]
                       [0 1 0]
                       [0 0 0]])))
-  (is (= [[0 0 0]
-          [0 0 0]
-          [0 1 0]]
+  (is (= [[[0 0 0]
+           [0 0 0]
+           [0 1 0]]]
          (move 1 :down [[0 0 0]
                         [0 1 0]
                         [0 0 0]])))
-  (is (= [[0 0 0]
-          [1 0 0]
-          [0 0 0]]
+  (is (= [[[0 0 0]
+           [1 0 0]
+           [0 0 0]]]
          (move 1 :left [[0 0 0]
                         [0 1 0]
                         [0 0 0]])))
-  (is (= [[0 0 0]
-          [0 0 1]
-          [0 0 0]]
+  (is (= [[[0 0 0]
+           [0 0 1]
+           [0 0 0]]]
          (move 1 :right [[0 0 0]
                          [0 1 0]
                          [0 0 0]])))
@@ -92,26 +92,27 @@
                          [0 1 0]])))
   (is (= [] (move 1 :up [[0 1 0]
                          [0 0 0]])))
-  )
+)
 
 (deftest find-possible-children-test
   (let [children (find-possible-children [[0 0 0]
                                           [0 1 0]
                                           [0 0 0]])]
     (is (= 4 (count children)))
-    (is (contains? children [[0 1 0]
-                             [0 0 0]
-                             [0 0 0]]))
-    (is (contains? children [[0 0 0]
-                             [0 0 1]
-                             [0 0 0]]))
-    (is (contains? children [[0 0 0]
-                             [1 0 0]
-                             [0 0 0]]))
-    (is (contains? children [[0 0 0]
-                             [0 0 0]
-                             [0 1 0]]))
+    (is (some #(= [[0 1 0]
+                   [0 0 0]
+                   [0 0 0]] %) children))
+    (is (some #(= [[0 0 0]
+                   [0 0 1]
+                   [0 0 0]] %) children))
+    (is (some #(= [[0 0 0]
+                   [0 0 0]
+                   [0 1 0]] %) children))
+    (is (some #(= [[0 0 0]
+                   [1 0 0]
+                   [0 0 0]] %) children))
   )
+  (is (= [] (find-possible-children [[1 2] [3 4]])))
 )
 
 (deftest find-solution-one-column-block-story

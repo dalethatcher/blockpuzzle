@@ -38,14 +38,17 @@
 (defn move [piece direction state]
   (let [directionised-state (directionise direction state)
         moved-state (map #(move-in-list piece %) directionised-state)]
-    (if (contains? nil moved-state)
+    (if (some nil? moved-state)
       []
-      (undirectionise direction moved-state)))
+      [(undirectionise direction moved-state)]))
 )
 
 (defn find-possible-children [state]
-  (let [piece-identifers (pieces state)]
-    [])
+  (let [piece-identifiers (pieces state)
+        with-directions #(list [% :up] [% :down] [% :left] [% :right])
+        test-pairs (mapcat with-directions piece-identifiers)]
+    (mapcat (fn [[piece-identifier direction]] (move piece-identifier direction state))
+         test-pairs))
 )
 
 (defn find-solution [start end]
