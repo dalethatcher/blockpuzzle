@@ -53,6 +53,18 @@
          test-pairs))
 )
 
+(defn end? [end-state state]
+  (let [flat-state (flatten state)
+        flat-end (flatten end-state)
+        state-pairs (map list flat-state flat-end)]
+    state-pairs
+    (empty? (filter (fn [[state-item end-item]]
+                      (not (or (= 0 end-item)
+                               (= state-item end-item))))
+                    state-pairs))
+  )
+)
+
 (defn find-solution [start end]
   (loop [search-lines [[start]]
          known-states #{start}]

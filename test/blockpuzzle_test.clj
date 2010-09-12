@@ -115,6 +115,21 @@
   (is (= [] (find-possible-children [[1 2] [3 4]])))
 )
 
+(deftest end?-test
+  (is (= true (end? [[1 1 0]
+                     [0 0 0]
+                     [0 0 0]]
+                    [[1 1 2]
+                     [0 0 3]
+                     [4 5 6]])))
+  (is (= false (end? [[1 1 0]
+                      [0 0 0]
+                      [0 0 0]]
+                     [[0 0 2]
+                      [1 1 3]
+                      [4 5 6]])))
+)
+
 (deftest find-solution-one-column-block-story
   (is (= [[[0] [0] [1]] [[0] [1] [0]] [[1] [0] [0]]]
          (find-solution [[0] [0] [1]] [[1] [0] [0]])
