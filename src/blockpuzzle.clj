@@ -44,7 +44,8 @@
 )
 
 (defn find-possible-children [state]
-  []
+  (let [piece-identifers (pieces state)]
+    [])
 )
 
 (defn find-solution [start end]
