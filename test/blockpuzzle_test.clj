@@ -147,3 +147,16 @@
          (find-solution [[0 2 1]] [[1 2 0]])
   ))
 )
+
+(deftest find-solution-multi-block-story
+  (is (= [[[0 4 3]
+           [2 1 1]]
+          [[2 4 3]
+           [0 1 1]]
+          [[2 4 3]
+           [1 1 0]]]
+         (find-solution [[0 4 3]
+                         [2 1 1]]
+                        [[0 0 0]
+                         [1 1 0]])))
+)

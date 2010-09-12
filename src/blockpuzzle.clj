@@ -68,20 +68,24 @@
 (defn find-solution [start end]
   (loop [search-lines [[start]]
          known-states #{start}]
-    (if (empty? search-lines)
-      []
-      (let [current-search (first search-lines)
-            future-searches (rest search-lines)
-            current-state (last current-search)
-            previous-states (butlast current-search)
-            possible-children (find-possible-children current-state)
-            unique-children (filter #(not (known-states %)) possible-children)
-            new-searches (map #(concat current-search [%]) unique-children)
-            new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
-        (if (contains? new-known-states end)
-          (concat current-search [end])
-          (recur new-searches new-known-states))
-      )
+    (cond
+      (empty? search-lines)
+        []
+      (end? end (last (first search-lines)))
+        (first search-lines)
+      true
+        (let [current-search (first search-lines)
+              future-searches (rest search-lines)
+              current-state (last current-search)
+              previous-states (butlast current-search)
+              possible-children (find-possible-children current-state)
+              unique-children (filter #(not (known-states %)) possible-children)
+              new-searches (map #(concat current-search [%]) unique-children)
+              new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
+          (if (contains? new-known-states end)
+            (concat current-search [end])
+            (recur new-searches new-known-states))
+        )
     )
   )
 )
