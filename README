@@ -1,17 +1,13 @@
 # blockpuzzle
 
-FIXME: write description
+A 2D sliding block puzzle solver.
 
 ## Usage
 
-FIXME: write
-
-## Installation
-
-FIXME: write
+See puzzle.clj for an example of how to use the program (although it isn't currently capable of solving it).  Zeros are 'holes' and numbers are unique for each block.  The end state should be zero for don't care and piece numbers for where the end position is.
 
 ## License
 
-Copyright (C) 2010 FIXME
+Copyright (C) 2010 Dale Thatcher
 
 Distributed under the Eclipse Public License, the same as Clojure.
