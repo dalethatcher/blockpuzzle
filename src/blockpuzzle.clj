@@ -65,6 +65,21 @@
   )
 )
 
+(defn format-state [state]
+  (.replace
+    (str "    "
+      (reduce #(str %1 "\n    " %2)
+        (map #(apply str (interpose " " %)) state)
+      )
+    )
+    "0" " "
+  )
+)
+
+(defn format-states [states]
+  (reduce str "\n" (interpose "\n    -------\n" (map format-state states)))
+)
+
 (defn find-solution [start end]
   (loop [search-lines [[start]]
          known-states #{start}]
@@ -80,12 +95,18 @@
               previous-states (butlast current-search)
               possible-children (find-possible-children current-state)
               unique-children (filter #(not (known-states %)) possible-children)
-              new-searches (map #(concat current-search [%]) unique-children)
+              new-unique-searches (map #(concat current-search [%]) unique-children)
+              new-search-lines (concat future-searches new-unique-searches)
               new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
-          (if (contains? new-known-states end)
-            (concat current-search [end])
-            (recur new-searches new-known-states))
+          (do
+;            (println "current-search:" (format-states current-search))
+;            (println "possible-children:" (format-states possible-children))
+;            (println "unique-children:" (format-states unique-children))
+;            (println "new-search-points:" (format-states (map last new-search-lines)))
+            (recur new-search-lines new-known-states)
+          )
         )
     )
   )
 )
+

@@ -130,6 +130,11 @@
                       [4 5 6]])))
 )
 
+(deftest format-state-test
+  (is (= "      1 2\n    3 4 5\n    6 7 8"
+         (format-state [[0 1 2] [3 4 5] [6 7 8]])))
+)
+
 (deftest find-solution-one-column-block-story
   (is (= [[[0] [0] [1]] [[0] [1] [0]] [[1] [0] [0]]]
          (find-solution [[0] [0] [1]] [[1] [0] [0]])
@@ -159,4 +164,15 @@
                          [2 1 1]]
                         [[0 0 0]
                          [1 1 0]])))
+)
+
+(deftest find-solution-large-block-story
+  (is (not (empty?
+    (find-solution [[1  1  7  7 ]
+                    [1  1  0  0 ]
+                    [9  9  0  0 ]]
+                   [[0  0  0  0 ]
+                    [1  1  0  0 ]
+                    [1  1  0  0 ]])
+  )))
 )
