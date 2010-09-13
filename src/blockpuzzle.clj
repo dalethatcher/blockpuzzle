@@ -82,12 +82,18 @@
 
 (defn find-solution [start end]
   (loop [search-lines [[start]]
-         known-states #{start}]
+         known-states #{start}
+         depth 0]
     (cond
       (empty? search-lines)
         []
       (end? end (last (first search-lines)))
         (first search-lines)
+      (< depth (count (first search-lines)))
+        (do
+          (println "Starting search at depth:" (inc depth)
+                   "number of search lines:" (count search-lines))
+          (recur search-lines known-states (inc depth)))
       true
         (let [current-search (first search-lines)
               future-searches (rest search-lines)
@@ -103,7 +109,7 @@
 ;            (println "possible-children:" (format-states possible-children))
 ;            (println "unique-children:" (format-states unique-children))
 ;            (println "new-search-points:" (format-states (map last new-search-lines)))
-            (recur new-search-lines new-known-states)
+            (recur new-search-lines new-known-states depth)
           )
         )
     )
