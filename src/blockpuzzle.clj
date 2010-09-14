@@ -101,16 +101,17 @@
               previous-states (butlast current-search)
               possible-children (find-possible-children current-state)
               unique-children (filter #(not (known-states %)) possible-children)
-              new-unique-searches (map #(concat current-search [%]) unique-children)
-              new-search-lines (concat future-searches new-unique-searches)
+              new-unique-searches (doall (map #(concat current-search [%])
+                                              unique-children))
+              new-search-lines (doall (concat future-searches new-unique-searches))
               new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
-          (do
+;          (do
 ;            (println "current-search:" (format-states current-search))
 ;            (println "possible-children:" (format-states possible-children))
 ;            (println "unique-children:" (format-states unique-children))
 ;            (println "new-search-points:" (format-states (map last new-search-lines)))
             (recur new-search-lines new-known-states depth)
-          )
+;          )
         )
     )
   )
