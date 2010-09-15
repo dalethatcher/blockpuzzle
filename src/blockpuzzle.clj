@@ -1,5 +1,4 @@
 (ns blockpuzzle
-  (:require [clojure [zip :as zip]])
   (:use clojure.set))
 
 (defn pieces [state]
@@ -72,12 +71,11 @@
         (map #(apply str (interpose " " %)) state)
       )
     )
-    "0" " "
-  )
+  "0" " ")
 )
 
 (defn format-states [states]
-  (reduce str "\n" (interpose "\n    -------\n" (map format-state states)))
+  (reduce str "\n" (interpose "\n    ---------\n" (map format-state states)))
 )
 
 (defn find-solution-breadth [start end]
@@ -113,6 +111,8 @@
 
 (defn find-solution-depth [max-depth start end]
   (loop [search-lines [[start]]
+         search-line-states (set [start])
+         moves-tried 0
          next-report-time (+ 20000 (System/currentTimeMillis))]
     (cond
       (empty? search-lines)
@@ -123,20 +123,26 @@
         (first search-lines)
       (> (System/currentTimeMillis) next-report-time)
         (do
-          (println "backlog:" (count search-lines))
-          (recur search-lines (+ 20000 (System/currentTimeMillis)))
+          (println "backlog:" (count search-lines) "moves-tried:" moves-tried)
+          (recur search-lines search-line-states moves-tried
+                 (+ 20000 (System/currentTimeMillis)))
         )
       (>= (count (first search-lines)) max-depth)
-        (recur (rest search-lines) next-report-time)
+        (let [new-search-lines (rest search-lines)]
+          (recur new-search-lines (set (first new-search-lines)) moves-tried next-report-time)
+        )
       true
         (let [current-search (first search-lines)
               future-searches (rest search-lines)
               current-state (last current-search)
               previous-states (butlast current-search)
-              children (find-possible-children current-state)
-              new-searches (doall (map #(concat current-search [%]) children))
-              new-search-lines (doall (concat new-searches future-searches))]
-            (recur new-search-lines next-report-time)
+              possible-children (find-possible-children current-state)
+              unique-children (filter #(not (search-line-states %)) possible-children)
+              new-unique-searches (map #(concat current-search [%]) unique-children)
+              new-search-lines (concat new-unique-searches future-searches)
+              new-search-line-states (union search-line-states (set unique-children))]
+            (recur new-search-lines new-search-line-states
+                   (+ moves-tried (count unique-children)) next-report-time)
         )
     )
   )
