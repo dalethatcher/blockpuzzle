@@ -80,7 +80,7 @@
   (reduce str "\n" (interpose "\n    -------\n" (map format-state states)))
 )
 
-(defn find-solution [start end]
+(defn find-solution-breadth [start end]
   (loop [search-lines [[start]]
          known-states #{start}
          depth 0]
@@ -114,6 +114,14 @@
 ;          )
         )
     )
+  )
+)
+
+(defn find-solution-depth [max-depth start end]
+  (do
+    (println "max-depth:" max-depth)
+    (println "start:" start)
+    (println "end:" end)
   )
 )
 

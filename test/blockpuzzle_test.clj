@@ -2,6 +2,8 @@
   (:use [blockpuzzle] :reload)
   (:use [clojure.test]))
 
+(def *find-solution*)
+
 (deftest pieces-test
   (is (= #{1 3 5} (pieces [[5 0 0]
                            [0 3 0]
@@ -137,19 +139,19 @@
 
 (deftest find-solution-one-column-block-story
   (is (= [[[0] [0] [1]] [[0] [1] [0]] [[1] [0] [0]]]
-         (find-solution [[0] [0] [1]] [[1] [0] [0]])
+         (*find-solution* [[0] [0] [1]] [[1] [0] [0]])
   ))
 )
 
 (deftest find-solution-one-row-story
   (is (= [[[0 0 1]] [[0 1 0]] [[1 0 0]]]
-         (find-solution [[0 0 1]] [[1 0 0]])
+         (*find-solution* [[0 0 1]] [[1 0 0]])
   ))
 )
 
 (deftest find-solution-none-possible-story
   (is (= []
-         (find-solution [[0 2 1]] [[1 2 0]])
+         (*find-solution* [[0 2 1]] [[1 2 0]])
   ))
 )
 
@@ -160,19 +162,41 @@
            [0 1 1]]
           [[2 4 3]
            [1 1 0]]]
-         (find-solution [[0 4 3]
-                         [2 1 1]]
-                        [[0 0 0]
-                         [1 1 0]])))
+         (*find-solution* [[0 4 3]
+                           [2 1 1]]
+                          [[0 0 0]
+                           [1 1 0]])))
 )
 
 (deftest find-solution-large-block-story
   (is (not (empty?
-    (find-solution [[1  1  7  7 ]
-                    [1  1  0  0 ]
-                    [9  9  0  0 ]]
-                   [[0  0  0  0 ]
-                    [1  1  0  0 ]
-                    [1  1  0  0 ]])
+    (*find-solution* [[1  1  7  7 ]
+                      [1  1  0  0 ]
+                      [9  9  0  0 ]]
+                     [[0  0  0  0 ]
+                      [1  1  0  0 ]
+                      [1  1  0  0 ]])
   )))
+)
+
+(deftest find-solution-stories
+  (find-solution-one-column-block-story)
+  (find-solution-one-row-story)
+  (find-solution-none-possible-story)
+  (find-solution-multi-block-story)
+  (find-solution-large-block-story)
+)
+
+(defn test-ns-hook []
+  (pieces-test)
+  (directionise-test)
+  (move-in-list-test)
+  (undirectionise-test)
+  (directionise-undirectionise-test)
+  (move-test)
+  (find-possible-children-test)
+  (end?-test)
+  (format-state-test)
+  (binding [*find-solution* find-solution-breadth] (find-solution-stories))
+;  (binding [*find-solution* (partial find-solution-depth 5)] (find-solution-stories))
 )
