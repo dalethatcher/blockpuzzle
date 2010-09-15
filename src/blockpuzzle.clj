@@ -96,32 +96,48 @@
           (recur search-lines known-states (inc depth)))
       true
         (let [current-search (first search-lines)
-              future-searches (rest search-lines)
-              current-state (last current-search)
-              previous-states (butlast current-search)
-              possible-children (find-possible-children current-state)
-              unique-children (filter #(not (known-states %)) possible-children)
-              new-unique-searches (doall (map #(concat current-search [%])
-                                              unique-children))
-              new-search-lines (doall (concat future-searches new-unique-searches))
-              new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
-;          (do
-;            (println "current-search:" (format-states current-search))
-;            (println "possible-children:" (format-states possible-children))
-;            (println "unique-children:" (format-states unique-children))
-;            (println "new-search-points:" (format-states (map last new-search-lines)))
-            (recur new-search-lines new-known-states depth)
-;          )
+            future-searches (rest search-lines)
+            current-state (last current-search)
+            previous-states (butlast current-search)
+            possible-children (find-possible-children current-state)
+            unique-children (filter #(not (known-states %)) possible-children)
+            new-unique-searches (doall (map #(concat current-search [%])
+                                            unique-children))
+            new-search-lines (doall (concat future-searches new-unique-searches))
+            new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
+          (recur new-search-lines new-known-states depth)
         )
     )
   )
 )
 
 (defn find-solution-depth [max-depth start end]
-  (do
-    (println "max-depth:" max-depth)
-    (println "start:" start)
-    (println "end:" end)
+  (loop [search-lines [[start]]
+         next-report-time (+ 20000 (System/currentTimeMillis))]
+    (cond
+      (empty? search-lines)
+        (do
+          (println)
+          [])
+      (end? end (last (first search-lines)))
+        (first search-lines)
+      (> (System/currentTimeMillis) next-report-time)
+        (do
+          (println "backlog:" (count search-lines))
+          (recur search-lines (+ 20000 (System/currentTimeMillis)))
+        )
+      (>= (count (first search-lines)) max-depth)
+        (recur (rest search-lines) next-report-time)
+      true
+        (let [current-search (first search-lines)
+              future-searches (rest search-lines)
+              current-state (last current-search)
+              previous-states (butlast current-search)
+              children (find-possible-children current-state)
+              new-searches (doall (map #(concat current-search [%]) children))
+              new-search-lines (doall (concat new-searches future-searches))]
+            (recur new-search-lines next-report-time)
+        )
+    )
   )
 )
-

@@ -6,16 +6,22 @@
   (do
     (println "Starting solution search")
     (println
-      (format-states
-        (find-solution
-          [[2  2  3  3  5]
-           [1  1  6  7  0]
-           [1  1  6  8  0]
-           [9  9  10 10 11]]
-          [[0  0  0  0  0]
-           [0  0  0  1  1]
-           [0  0  0  1  1]
-           [0  0  0  0  0]])))
+      (let [solution (find-solution-depth
+                        100
+                        [[2  2  3  3  5]
+                         [1  1  6  7  0]
+                         [1  1  6  8  0]
+                         [9  9  10 10 11]]
+                        [[0  0  0  0  0]
+                         [0  0  0  1  1]
+                         [0  0  0  1  1]
+                         [0  0  0  0  0]])]
+        (if (empty? solution)
+          "No solution found."
+          (format-states solution)
+        )
+      )
+    )
   )
 )
 
