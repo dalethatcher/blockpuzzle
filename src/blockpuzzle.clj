@@ -113,7 +113,7 @@
   (loop [search-lines [[start]]
          search-line-states (set [start])
          moves-tried 0
-         next-report-time (+ 20000 (System/currentTimeMillis))]
+         next-report-time (+ 30000 (System/currentTimeMillis))]
     (cond
       (empty? search-lines)
         (do
@@ -123,9 +123,11 @@
         (first search-lines)
       (> (System/currentTimeMillis) next-report-time)
         (do
-          (println "backlog:" (count search-lines) "moves-tried:" moves-tried)
+          (println "backlog:" (count search-lines) "moves-tried:" moves-tried
+                   "current-leaf:")
+          (println (format-state (last (first search-lines))))
           (recur search-lines search-line-states moves-tried
-                 (+ 20000 (System/currentTimeMillis)))
+                 (+ 30000 (System/currentTimeMillis)))
         )
       (>= (count (first search-lines)) max-depth)
         (let [new-search-lines (rest search-lines)]
