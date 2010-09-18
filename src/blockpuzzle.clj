@@ -149,3 +149,47 @@
     )
   )
 )
+
+(defstruct search :history :score :state)
+
+(defn insert-new-search [search-lines new-search]
+  (let [score (new-search :score)
+        [higher-scores lower-scores] (split-with #(> (% :score) score) search-lines)]
+    (concat higher-scores [new-search] lower-scores))
+)
+
+(defn find-solution-scored [score? start end]
+  (loop [search-lines [(struct search [] (score? start) start)]
+         known-states #{start}
+         last-report-time (System/currentTimeMillis)]
+    (cond
+      (empty? search-lines)
+        []
+      (> (System/currentTimeMillis) (+ last-report-time 30000))
+        (do
+          (let [depths (map #(+ 1 (count (% :history))) search-lines)
+                max-depth (reduce #(if (> %2 %1) %2 %1) 0 depths)
+                best-state (format-state ((first search-lines) :state))]
+            (println "Number of search lines:" (count search-lines)
+                     "max depth:" max-depth
+                     "number of known states:" (count known-states)
+                     "best state:" best-state))
+          (recur search-lines known-states (System/currentTimeMillis)))
+      true
+          (let [current-search (first search-lines)
+                future-searches (rest search-lines)
+                current-state (current-search :state)
+                possible-children (find-possible-children current-state)
+                unique-children (filter #(not (known-states %)) possible-children)
+                end-states (filter #(end? end %) unique-children)]
+            (if (not (empty? end-states))
+              (concat (current-search :history) [current-state] end-states)
+              (let [new-history (concat (current-search :history) [current-state])
+                    new-searches (map #(struct search new-history (score? %) %) unique-children)
+                    new-search-lines (reduce #(insert-new-search %1 %2)
+                                             future-searches new-searches)
+                    new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
+                (recur new-search-lines new-known-states last-report-time))))
+    )
+  )
+)

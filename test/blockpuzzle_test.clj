@@ -199,4 +199,5 @@
   (format-state-test)
   (binding [*find-solution* find-solution-breadth] (find-solution-stories))
   (binding [*find-solution* (partial find-solution-depth 5)] (find-solution-stories))
+  (binding [*find-solution* (partial find-solution-scored (fn [_] 1))] (find-solution-stories))
 )
