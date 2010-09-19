@@ -20,7 +20,7 @@
     (cond
       (empty? remainder) segment
       (not (= 0 (last before-piece))) nil
-      true (let [before-space (butlast before-piece)
+      :else (let [before-space (butlast before-piece)
                  [piece after-piece] (split-with #(= piece-identifier %) remainder)]
              (concat before-space piece [0] after-piece))
     ))
@@ -92,7 +92,7 @@
           (println "Starting search at depth:" (inc depth)
                    "number of search lines:" (count search-lines))
           (recur search-lines known-states (inc depth)))
-      true
+      :else
         (let [current-search (first search-lines)
             future-searches (rest search-lines)
             current-state (last current-search)
@@ -133,7 +133,7 @@
         (let [new-search-lines (rest search-lines)]
           (recur new-search-lines (set (first new-search-lines)) moves-tried next-report-time)
         )
-      true
+      :else
         (let [current-search (first search-lines)
               future-searches (rest search-lines)
               current-state (last current-search)
@@ -154,7 +154,11 @@
 
 (defn insert-new-search [search-lines new-search]
   (let [score (new-search :score)
-        [higher-scores lower-scores] (split-with #(> (% :score) score) search-lines)]
+        depth (count (new-search :history))
+        higher-priority (fn [s] (or (> (s :score) score)
+                                    (and (= (s :score score))
+                                         (< (count (s :history)) depth))))
+        [higher-scores lower-scores] (split-with higher-priority search-lines)]
     (concat higher-scores [new-search] lower-scores))
 )
 
@@ -165,7 +169,7 @@
     (cond
       (empty? search-lines)
         []
-      (> (System/currentTimeMillis) (+ last-report-time 30000))
+      (> (System/currentTimeMillis) (+ last-report-time 20000))
         (do
           (let [depths (map #(+ 1 (count (% :history))) search-lines)
                 max-depth (reduce #(if (> %2 %1) %2 %1) 0 depths)
@@ -173,9 +177,10 @@
             (println "Number of search lines:" (count search-lines)
                      "max depth:" max-depth
                      "number of known states:" (count known-states)
-                     "best state:" best-state))
+                     "best state:")
+            (println best-state))
           (recur search-lines known-states (System/currentTimeMillis)))
-      true
+      :else
           (let [current-search (first search-lines)
                 future-searches (rest search-lines)
                 current-state (current-search :state)
@@ -184,10 +189,10 @@
                 end-states (filter #(end? end %) unique-children)]
             (if (not (empty? end-states))
               (concat (current-search :history) [current-state] end-states)
-              (let [new-history (concat (current-search :history) [current-state])
+              (let [new-history (doall (concat (current-search :history) [current-state]))
                     new-searches (map #(struct search new-history (score? %) %) unique-children)
-                    new-search-lines (reduce #(insert-new-search %1 %2)
-                                             future-searches new-searches)
+                    new-search-lines (doall (reduce #(insert-new-search %1 %2)
+                                             future-searches new-searches))
                     new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
                 (recur new-search-lines new-known-states last-report-time))))
     )
