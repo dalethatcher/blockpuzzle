@@ -1,4 +1,9 @@
 pom.xml
-*jar
+*.jar
 lib
 classes
+*.bak
+.classpath
+.project
+*~
+bin
