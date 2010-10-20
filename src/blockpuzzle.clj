@@ -109,6 +109,15 @@
     (set (vals silhouette-to-pieces)))
   )
 
+(defn radix-map
+  "Takes a set of sets of identical shaped pieces and produces a mapping
+   from piece identifier to common radix for that shape."
+  [identical-pieces-set]
+  (let [radix-piece-pairs (map list (iterate inc 1) identical-pieces-set)
+	exploded-pairs (map (fn [[i pieces]] (map list pieces (repeat i))) radix-piece-pairs)]
+    (apply hash-map (concat [0 0] (flatten exploded-pairs))))
+  )
+
 (defn find-solution-breadth [start end]
   (loop [search-lines [[start]]
          known-states #{start}

@@ -1,6 +1,7 @@
 (ns blockpuzzle-test
   (:use [blockpuzzle] :reload)
-  (:use [clojure.test]))
+  (:use [clojure.test])
+  (:use [clojure.contrib.trace]))
 
 (def *find-solution*)
 
@@ -159,6 +160,14 @@
 			 [0 0 0]])))
   )
 
+(deftest radix-map-test
+  (let [m (radix-map #{#{1 2} #{3}})]
+    (is (= (m 0) 0))
+    (is (= (m 1) (m 2)))
+    (is (not (= (m 2) (m 3))))
+    )
+  )
+
 (deftest find-solution-one-column-block-story
   (is (= [[[0] [0] [1]] [[0] [1] [0]] [[1] [0] [0]]]
          (*find-solution* [[0] [0] [1]] [[1] [0] [0]])
@@ -222,6 +231,7 @@
   (find-identical-pieces-test)
   (piece-silhouette-test)
   (trim-blanks-test)
+  (radix-map-test)
   (binding [*find-solution* find-solution-breadth] (find-solution-stories))
   (binding [*find-solution* (partial find-solution-depth 5)] (find-solution-stories))
   (binding [*find-solution* (partial find-solution-scored (fn [_] 1))]
