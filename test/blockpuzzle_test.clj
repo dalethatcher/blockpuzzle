@@ -137,6 +137,28 @@
          (format-state [[0 1 2] [3 4 5] [6 7 8]])))
 )
 
+(deftest find-identical-pieces-test
+  (is (= #{ #{1 2} #{3 4} #{5} }
+	(find-identical-pieces [[1 3 0 2 5 5]
+				[4 3 3 0 5 5]
+				[4 4 0 0 0 0]]))
+      )
+  )
+
+(deftest piece-silhouette-test
+  (is (= [[0 1 0]
+	  [0 1 1]]
+	   (piece-silhouette [[1 2 3]
+			      [1 2 2]] 2)))
+  )
+
+(deftest trim-blanks-test
+  (is (= [[1]]
+	   (trim-blanks [[0 0 0]
+			 [0 1 0]
+			 [0 0 0]])))
+  )
+
 (deftest find-solution-one-column-block-story
   (is (= [[[0] [0] [1]] [[0] [1] [0]] [[1] [0] [0]]]
          (*find-solution* [[0] [0] [1]] [[1] [0] [0]])
@@ -197,7 +219,11 @@
   (find-possible-children-test)
   (end?-test)
   (format-state-test)
+  (find-identical-pieces-test)
+  (piece-silhouette-test)
+  (trim-blanks-test)
   (binding [*find-solution* find-solution-breadth] (find-solution-stories))
   (binding [*find-solution* (partial find-solution-depth 5)] (find-solution-stories))
-  (binding [*find-solution* (partial find-solution-scored (fn [_] 1))] (find-solution-stories))
+  (binding [*find-solution* (partial find-solution-scored (fn [_] 1))]
+    (find-solution-stories))
 )

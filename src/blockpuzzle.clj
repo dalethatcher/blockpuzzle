@@ -3,11 +3,14 @@
 
 (defn pieces [state]
   (set (filter #(not (= 0 %)) (flatten state)))
-)
+  )
+
+(defn transpose [state]
+  (apply map list state))
 
 (defn directionise [direction state]
   (let [switched (if (or (= :up direction) (= :down direction))
-                   (apply map list state)
+                   (transpose state)
                    state)
         directionised (if (or (= :down direction) (= :right direction))
                         (map reverse switched)
@@ -76,7 +79,35 @@
 
 (defn format-states [states]
   (reduce str "\n" (interpose "\n    ---------\n" (map format-state states)))
-)
+  )
+
+(defn piece-silhouette [state piece]
+  (letfn [(silhouette-row [row] (map #(if (= piece %) 1 0) row))]
+    (map silhouette-row state)))
+
+(defn empty-row? [row]
+  (empty? (filter #(not (zero? %)) row)))
+
+(defn remove-blank-rows [state]
+  (filter #(not (empty-row? %)) state))
+
+(defn trim-blanks [state]
+  (let [blank-rows-removed (remove-blank-rows state)
+	transposed (transpose blank-rows-removed)
+	blank-columns-removed (remove-blank-rows transposed)]
+    (transpose blank-columns-removed))
+  )
+
+(defn find-identical-pieces [state]
+  (let [piece-identifiers (pieces state)
+	silhouette-map (reduce #(assoc %1 %2 (trim-blanks (piece-silhouette state %2)))
+			       {} piece-identifiers)
+	silhouette-to-pieces (reduce (fn [m [piece silhouette]]
+				       (assoc m silhouette (union (m silhouette)
+								  #{piece})))
+				     {} silhouette-map)]
+    (set (vals silhouette-to-pieces)))
+  )
 
 (defn find-solution-breadth [start end]
   (loop [search-lines [[start]]
@@ -131,7 +162,8 @@
         )
       (>= (count (first search-lines)) max-depth)
         (let [new-search-lines (rest search-lines)]
-          (recur new-search-lines (set (first new-search-lines)) moves-tried next-report-time)
+          (recur new-search-lines (set (first new-search-lines))
+		 moves-tried next-report-time)
         )
       :else
         (let [current-search (first search-lines)
@@ -139,10 +171,12 @@
               current-state (last current-search)
               previous-states (butlast current-search)
               possible-children (find-possible-children current-state)
-              unique-children (filter #(not (search-line-states %)) possible-children)
+              unique-children (filter #(not (search-line-states %))
+				      possible-children)
               new-unique-searches (map #(concat current-search [%]) unique-children)
               new-search-lines (concat new-unique-searches future-searches)
-              new-search-line-states (union search-line-states (set unique-children))]
+              new-search-line-states (union search-line-states
+					    (set unique-children))]
             (recur new-search-lines new-search-line-states
                    (+ moves-tried (count unique-children)) next-report-time)
         )
@@ -189,11 +223,14 @@
                 end-states (filter #(end? end %) unique-children)]
             (if (not (empty? end-states))
               (concat (current-search :history) [current-state] end-states)
-              (let [new-history (doall (concat (current-search :history) [current-state]))
-                    new-searches (map #(struct search new-history (score? %) %) unique-children)
+              (let [new-history (doall (concat (current-search :history)
+					       [current-state]))
+                    new-searches (map #(struct search new-history (score? %) %)
+				      unique-children)
                     new-search-lines (doall (reduce #(insert-new-search %1 %2)
                                              future-searches new-searches))
-                    new-known-states (reduce #(union %1 #{%2}) known-states unique-children)]
+                    new-known-states (reduce #(union %1 #{%2})
+					     known-states unique-children)]
                 (recur new-search-lines new-known-states last-report-time))))
     )
   )

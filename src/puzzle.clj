@@ -18,8 +18,7 @@
   (do
     (println "Starting solution search")
     (println
-      (let [solution (find-solution-scored
-                       state-score
+      (let [solution (find-solution-breadth
                        [[2  2  3  3  5]
                         [1  1  6  7  0]
                         [1  1  6  8  0]
