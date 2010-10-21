@@ -118,6 +118,13 @@
     (apply hash-map (concat [0 0] (flatten exploded-pairs))))
   )
 
+(defn state-to-identifier [rmap state]
+  (let [radix (count rmap)]
+    (reduce #(+ (* radix %1) (rmap %2))
+	    0
+	    (flatten state)))
+  )
+
 (defn find-solution-breadth [start end]
   (loop [search-lines [[start]]
          known-states #{start}

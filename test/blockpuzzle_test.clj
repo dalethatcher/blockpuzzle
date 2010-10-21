@@ -168,6 +168,14 @@
     )
   )
 
+(deftest state-to-identifier-test
+  (let [rmap {0 0 1 1 2 1 3 2}
+	state [[0 1 2] [3 3 0]]]
+    (is (= 4r011220
+	   (state-to-identifier rmap state)))
+    )
+  )
+
 (deftest find-solution-one-column-block-story
   (is (= [[[0] [0] [1]] [[0] [1] [0]] [[1] [0] [0]]]
          (*find-solution* [[0] [0] [1]] [[1] [0] [0]])
@@ -232,6 +240,7 @@
   (piece-silhouette-test)
   (trim-blanks-test)
   (radix-map-test)
+  (state-to-identifier-test)
   (binding [*find-solution* find-solution-breadth] (find-solution-stories))
   (binding [*find-solution* (partial find-solution-depth 5)] (find-solution-stories))
   (binding [*find-solution* (partial find-solution-scored (fn [_] 1))]
