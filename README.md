@@ -11,8 +11,6 @@ Once you've adjusted puzzle.clj, with the puzzle you'd like to solve, run it wit
 $ lein uberjar
 $ java -jar java -jar blockpuzzle-1.0.0-SNAPSHOT-standalone.jar
 
-Currently the algorithm counts each single block move individually.  So it will often produce a higher number of moves than standard solutions.
-
 ## License
 
 Copyright (C) 2010 Dale Thatcher

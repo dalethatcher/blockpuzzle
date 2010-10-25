@@ -45,15 +45,28 @@
     (if (some nil? moved-state)
       []
       [(undirectionise direction moved-state)]))
-)
+  )
+
+(defn find-one-step-children [state piece]
+  (mapcat #(move piece % state) [:up :down :left :right])
+  )
+
+(defn find-possible-children-for-piece [state piece]
+  (loop [found-moves #{state}]
+    (let [direct-children (mapcat #(find-one-step-children % piece) found-moves)
+	  new-found-moves (union found-moves (set direct-children))]
+      (if (= found-moves new-found-moves)
+	found-moves
+	(recur new-found-moves))
+      )))
 
 (defn find-possible-children [state]
-  (let [piece-identifiers (pieces state)
-        with-directions #(list [% :up] [% :down] [% :left] [% :right])
-        test-pairs (mapcat with-directions piece-identifiers)]
-    (mapcat (fn [[piece-identifier direction]] (move piece-identifier direction state))
-         test-pairs))
-)
+  (let [piece-ids (pieces state)
+	possibles (mapcat #(find-possible-children-for-piece state %) piece-ids)
+	unique-possibles (set possibles)]
+    (disj unique-possibles state)
+    )
+  )
 
 (defn end? [end-state state]
   (let [flat-state (flatten state)

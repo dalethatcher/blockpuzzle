@@ -95,28 +95,44 @@
                          [0 1 0]])))
   (is (= [] (move 1 :up [[0 1 0]
                          [0 0 0]])))
-)
+  )
+
+(defn state-with-single-piece-at-index [index]
+  (partition 3 (for [i (range 9)] (if (= i index) 1 0))))
+
+(deftest find-one-step-children-test
+  (let [expected-children (map #(state-with-single-piece-at-index %)
+			       [1 7 3 5])]
+    (is (= expected-children (find-one-step-children [[0 0 0]
+						      [0 1 0]
+						      [0 0 0]] 1)))
+    )
+  )
+
+(deftest find-possible-children-for-piece-test
+  (let [expected-children (set (for [i (range 9)]
+				 (state-with-single-piece-at-index i)))]
+    (is (= expected-children (find-possible-children-for-piece [[0 0 0]
+								[0 1 0]
+								[0 0 0]] 1)))
+    )
+  )
 
 (deftest find-possible-children-test
   (let [children (find-possible-children [[0 0 0]
                                           [0 1 0]
-                                          [0 0 0]])]
-    (is (= 4 (count children)))
-    (is (some #(= [[0 1 0]
-                   [0 0 0]
-                   [0 0 0]] %) children))
-    (is (some #(= [[0 0 0]
-                   [0 0 1]
-                   [0 0 0]] %) children))
-    (is (some #(= [[0 0 0]
-                   [0 0 0]
-                   [0 1 0]] %) children))
-    (is (some #(= [[0 0 0]
-                   [1 0 0]
-                   [0 0 0]] %) children))
+                                          [0 0 0]])
+	expected-children (for [i (range 9) :when (not (= i 4))]
+			    (state-with-single-piece-at-index i))]
+    (is (= 8 (count children)))
+    (doall
+     (for [expected-board expected-children]
+       (is (some #(= expected-board %) children)
+	   (str "Expected child: " (apply list expected-board)))
+       ))
+    (is (empty? (find-possible-children [[1 2] [3 4]])))
+    )
   )
-  (is (= [] (find-possible-children [[1 2] [3 4]])))
-)
 
 (deftest end?-test
   (is (= true (end? [[1 1 0]
@@ -177,13 +193,13 @@
   )
 
 (deftest find-solution-one-column-block-story
-  (is (= [[[0] [0] [1]] [[0] [1] [0]] [[1] [0] [0]]]
+  (is (= [[[0] [0] [1]] [[1] [0] [0]]]
          (*find-solution* [[0] [0] [1]] [[1] [0] [0]])
   ))
 )
 
 (deftest find-solution-one-row-story
-  (is (= [[[0 0 1]] [[0 1 0]] [[1 0 0]]]
+  (is (= [[[0 0 1]] [[1 0 0]]]
          (*find-solution* [[0 0 1]] [[1 0 0]])
   ))
 )
