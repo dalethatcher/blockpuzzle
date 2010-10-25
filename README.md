@@ -8,7 +8,7 @@ See puzzle.clj for an example of how to use the program with the classic "Red Do
 
 Once you've adjusted puzzle.clj, with the puzzle you'd like to solve, run it with:
 
-$ lein uberjar
+$ lein uberjar<br/>
 $ java -jar java -jar blockpuzzle-1.0.0-SNAPSHOT-standalone.jar
 
 ## License
